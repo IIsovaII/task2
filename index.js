@@ -1,3 +1,8 @@
+// чтение JSON
+fetch("./data/form-test-3.json")
+    .then((res) => res.json())
+    .then((data) => genHTML(data));
+
 // для кнопок
 function AddButtons(arr) {
     let buttons = {
@@ -12,16 +17,15 @@ function AddReset(text) {
     let reset = document.createElement("input");
     reset.setAttribute("type", "reset");
     reset.setAttribute("value", `${text}`);
+    reset.className = "btn btn-default";
     document.getElementById("form").appendChild(reset);
-    //<input type="reset" value="Clear"> - стоит ли делать через innerHTML?
-
-    // стоит ли делать проверку на наличие этой формы? И в других функциях проверку на наличие attrs, например?
 }
 
 function AddSubmit(text) {
     let submit = document.createElement("input");
     submit.setAttribute("type", "submit");
     submit.setAttribute("value", `${text}`);
+    submit.className = "btn btn-default";
     document.getElementById("form").appendChild(submit);
 }
 
@@ -29,23 +33,26 @@ function AddSubmit(text) {
 function AddTitle(text) {
     let h1 = document.createElement("h1");
     let t = document.createTextNode(text);
+    h1.className = "jumbotron text-center";
     h1.appendChild(t);
-    document.body.appendChild(h1);
+    document.getElementById("container").appendChild(h1);
 }
 
 // для описания
 function AddDescription(text) {
     let p = document.createElement("p");
     let t = document.createTextNode(text);
+    p.className = "jumbotron text-center";
     p.appendChild(t);
-    document.body.appendChild(p);
+    document.getElementById("container").appendChild(p);
 }
 
 // для полей
 function AddFields(data) {
     let form = document.createElement("form");
-    form.setAttribute("id", "form");
-    document.body.appendChild(form);
+    form.id = "form";
+    form.className = " form-group ";
+    document.getElementById("container").appendChild(form);
 
     let fields = {
         text: AddText,
@@ -61,64 +68,51 @@ function AddFields(data) {
 }
 
 function AddText(data) {
-    // или лучше так?
-    // let l = document.createElement("label");
-    // l.setAttribute("for", `${data.attrs.name}`);
-    // let t = document.createTextNode(data.label);
-    // l.appendChild(t);
-    //
-    // let inp = document.createElement("input");
-    // inp.setAttribute('type', `${data.attrs.type}`);
-    // inp.setAttribute('type', `${data.attrs.name}`);
-    //
-    // document.getElementById('form').appendChild(l).appendChild(inp);
-    // document.getElementById("form").innerHTML += "<br>";
-
     document.getElementById("form").innerHTML +=
-        `<label for="${data.attrs.name}">${data.label}</label><br>` +
-        `<input type="${data.attrs.type}" name="${data.attrs.name}""><br><br>`;
+        `<label for="${data.attrs.name}" >${data.label}</label>` +
+        `<input type = "${data.attrs.type}" form = 'form' class="form-control" name="${data.attrs.name}">`;
 }
 
 function AddTextarea(data) {
     document.getElementById("form").innerHTML +=
-        `<label for="${data.attrs.name}">${data.label}</label><br>` +
-        `<textarea form = 'form'" name="${data.attrs.name}"></textarea><br><br>`;
+        `<label for="${data.attrs.name}">${data.label}</label>` +
+        `<textarea form = 'form' class="form-control" name="${data.attrs.name}"></textarea>`;
 }
 
 function AddBoxes(data) {
     document.getElementById("form").innerHTML +=
-        `<label for="${data.attrs.name}">${data.label}</label><br>`;
+        `<label for="${data.attrs.name}" class = 'form-check-label'>${data.label}</label>`;
+
+    let variants = document.createElement("div");
 
     for (let v in data.attrs.variants) {
-        document.getElementById("form").innerHTML +=
-            `<input type="${data.attrs.type}" id="${data.attrs.variants[v].value}" value="${data.attrs.variants[v].value}">` +
+        variants.innerHTML +=
+            `<input type="${data.attrs.type}" class = 'form-check-input' id="${data.attrs.variants[v].value}" value="${data.attrs.variants[v].value}">` +
             `<label for="${data.attrs.variants[v].value}">${data.attrs.variants[v].label}</label><br>`;
     }
-    document.getElementById("form").innerHTML += "<br>";
+
+    document.getElementById("form").appendChild(variants);
 }
 
 function AddSelect(data) {
     let l = document.createElement("label");
-    l.setAttribute("for", `${data.attrs.name}`);
-    let t = document.createTextNode(data.label);
-    l.appendChild(t);
+    l.htmlFor = data.attrs.name;
+    l.textContent = data.label;
     document.getElementById("form").appendChild(l);
-    document.getElementById("form").innerHTML += "<br>";
 
     let select = document.createElement("select");
-    select.setAttribute("id", `${data.attrs.name}`);
-    select.setAttribute("form", "form");
+    select.id = data.attrs.name;
+    select.form = 'form';
+    select.className = "form-select";
 
     for (let v in data.attrs.variants) {
         let variant = document.createElement("option");
-        t = document.createTextNode(data.attrs.variants[v].label);
-        variant.setAttribute("value", `${data.attrs.variants[v].value}`);
-        variant.appendChild(t);
+        variant.textContent = data.attrs.variants[v].label;
+        variant.value = data.attrs.variants[v].value;
         select.appendChild(variant);
     }
 
     document.getElementById("form").appendChild(select);
-    document.getElementById("form").innerHTML += "<br><br>";
 }
 
 // основная функция которая перенаправляет уже на другие функции
@@ -130,10 +124,10 @@ function genHTML(data) {
         buttons: AddButtons,
     };
 
+    let container = document.createElement("div");
+    container.className = "container";
+    container.id = "container";
+    document.body.appendChild(container);
+
     for (let i in data) fun[i](data[i]);
 }
-
-// чтение JSON
-fetch("./data/form-test-2.json")
-    .then((res) => res.json())
-    .then((data) => genHTML(data));
